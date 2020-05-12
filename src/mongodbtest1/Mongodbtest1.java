@@ -1,9 +1,12 @@
 package mongodbtest1;
 
+import com.mongodb.client.AggregateIterable;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.Accumulators;
+import com.mongodb.client.model.Aggregates;
 import com.mongodb.client.model.Filters;
 import java.util.Arrays;
 import org.bson.BsonDocument;
@@ -59,13 +62,14 @@ public class Mongodbtest1 {
 
             restaurantes.insertMany(Arrays.asList(document1, document2, document3));
 
-            Bson bson =  Filters.and(
-                        Filters.gt("estrellas", 4),
-                        Filters.eq("canvas", "journal"));
-            
-            BsonDocument bsonDocument = bson.toBsonDocument(Class.forName(Bson.class.getCanonicalName()));
+            AggregateIterable<Document> documents = restaurantes.aggregate(Arrays.asList(
+                    // Java equivalent of the $match stage
+                    Aggregates.match(Filters.gt("estrellas", 4))
+            ));
 
-            System.out.print(bsonDocument.toString()); //{ "inbox" : { "$in" : inboxes }, "status" : status }
+            for (Document document : documents) {
+                System.out.println(document.toJson());
+            }
 
         }
 
